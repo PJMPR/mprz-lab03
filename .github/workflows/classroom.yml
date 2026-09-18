@@ -1,0 +1,165 @@
+name: GitHub Classroom Autograding
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+permissions:
+  checks: write
+  actions: read
+  contents: read
+
+jobs:
+  autograding:
+    runs-on: ubuntu-latest
+
+    env:
+      PROJECT_DIR: schedulers
+      MAIN_CLASS: org.example.Main
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@v3
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Setup Gradle (cache)
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build
+        run: |
+          cd "$PROJECT_DIR"
+          chmod +x ./gradlew
+          ./gradlew -q clean build -x test
+      - name: Run once and save output
+        id: run-once
+        shell: bash
+        run: |
+          set -e
+          cd "$PROJECT_DIR"
+          OUT=../program_output.txt
+          if ./gradlew -q tasks --all | grep -qE '(^|:)run\s'; then
+            ./gradlew -q run | tee "$OUT"
+          else
+            CP="build/classes/java/main"
+            [ -d "$CP" ] || { echo "Brak $CP – czy build przeszedł?"; exit 1; }
+            java -cp "$CP" "$MAIN_CLASS" | tee "$OUT"
+          fi
+          echo "OUTPUT_PATH=$(realpath $OUT)" >> $GITHUB_OUTPUT
+      # --- 20 testów po 1 pkt każdy (sprawdzenie markerów w program_output.txt) ---
+      - name: SEGMENT 1
+        id: seg-1
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 1"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 2
+        id: seg-2
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 2"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 3
+        id: seg-3
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 3"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 4
+        id: seg-4
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 4"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 5
+        id: seg-5
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 5"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 6
+        id: seg-6
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 6"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 7
+        id: seg-7
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 7"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 8
+        id: seg-8
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 8"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 9
+        id: seg-9
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 9"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+      - name: SEGMENT 10
+        id: seg-10
+        uses: classroom-resources/autograding-command-grader@v1
+        with:
+          test-name: "Segment 10"
+          command: bash -lc "grep -q '\\[SEGMENT-1-OK\\]' program_output.txt"
+          timeout: 5
+          max-score: 1
+
+
+      # Reporter: to jest kluczowy krok synchronizujący punkty z Classroom
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          SEG-1_RESULTS:  ${{ steps.seg-1.outputs.result }}
+          SEG-2_RESULTS:  ${{ steps.seg-2.outputs.result }}
+          SEG-3_RESULTS:  ${{ steps.seg-3.outputs.result }}
+          SEG-4_RESULTS:  ${{ steps.seg-4.outputs.result }}
+          SEG-5_RESULTS:  ${{ steps.seg-5.outputs.result }}
+          SEG-6_RESULTS:  ${{ steps.seg-6.outputs.result }}
+          SEG-7_RESULTS:  ${{ steps.seg-7.outputs.result }}
+          SEG-8_RESULTS:  ${{ steps.seg-8.outputs.result }}
+          SEG-9_RESULTS:  ${{ steps.seg-9.outputs.result }}
+          SEG-10_RESULTS: ${{ steps.seg-10.outputs.result }}
+        with:
+          runners: seg-1,seg-2,seg-3,seg-4,seg-5,seg-6,seg-7,seg-8,seg-9,seg-10
